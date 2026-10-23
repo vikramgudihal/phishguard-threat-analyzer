@@ -59,10 +59,6 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                         URL Scanner
                     </button>
-                    <button type="button" class="tab-btn" id="tabUpload" onclick="switchMode('upload')">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        Upload (.eml)
-                    </button>
                 </div>
 
                 <!-- 1. Email Input Form -->
@@ -124,26 +120,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Upload File Form -->
-                <div id="uploadControls" style="display: none;">
-                    <div class="upload-dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" accept=".eml,.txt,.msg" style="display: none;" onchange="handleFileSelected(event)" />
-                        <div class="dropzone-icon">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        </div>
-                        <div class="dropzone-text">
-                            <strong>Choose an .eml or .txt file</strong> or drag & drop here
-                        </div>
-                        <span class="dropzone-caption">Standard RFC-822 email files exported from Outlook, Thunderbird, or Webmail</span>
-                    </div>
-
-                    <div id="uploadStatus" class="upload-status-box" style="display: none;">
-                        <span id="uploadFileName">No file selected</span>
-                        <button type="button" class="btn btn-primary" id="btnExecuteUpload" onclick="uploadAndAnalyze()">
-                            Inspect Uploaded File
-                        </button>
-                    </div>
-                </div>
 
                 <!-- Safe Heuristics Info Note -->
                 <div class="safety-advisory-box">

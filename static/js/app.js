@@ -33,34 +33,27 @@ function updateInputStats() {
     }
 }
 
-// Mode Switching (Email Inspector, Standalone URL, File Upload)
+// Mode Switching (Email Inspector, Standalone URL)
 function switchMode(mode) {
     currentMode = mode;
     const tabEmail = document.getElementById("tabEmail");
     const tabUrl = document.getElementById("tabUrl");
-    const tabUpload = document.getElementById("tabUpload");
 
     const emailControls = document.getElementById("emailControls");
     const urlControls = document.getElementById("urlControls");
-    const uploadControls = document.getElementById("uploadControls");
 
-    tabEmail.classList.remove("active");
-    tabUrl.classList.remove("active");
-    tabUpload.classList.remove("active");
+    if (tabEmail) tabEmail.classList.remove("active");
+    if (tabUrl) tabUrl.classList.remove("active");
 
-    emailControls.style.display = "none";
-    urlControls.style.display = "none";
-    uploadControls.style.display = "none";
+    if (emailControls) emailControls.style.display = "none";
+    if (urlControls) urlControls.style.display = "none";
 
     if (mode === "email") {
-        tabEmail.classList.add("active");
-        emailControls.style.display = "block";
+        if (tabEmail) tabEmail.classList.add("active");
+        if (emailControls) emailControls.style.display = "block";
     } else if (mode === "url") {
-        tabUrl.classList.add("active");
-        urlControls.style.display = "block";
-    } else if (mode === "upload") {
-        tabUpload.classList.add("active");
-        uploadControls.style.display = "block";
+        if (tabUrl) tabUrl.classList.add("active");
+        if (urlControls) urlControls.style.display = "block";
     }
 }
 
