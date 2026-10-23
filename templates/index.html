@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard | Threat Intelligence & Phishing Analysis Engine</title>
+    <!-- Professional Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-layout">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-shield">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title-row">
+                        <h1>PhishGuard</h1>
+                        <span class="version-tag">ENTERPRISE SOC</span>
+                    </div>
+                    <span class="brand-sub">Threat Intelligence & Dual-Perspective Phishing Analysis Platform</span>
+                </div>
+            </div>
+
+            <div class="header-meta">
+                <div class="engine-status">
+                    <span class="pulse-indicator"></span>
+                    <span class="engine-text">Static Heuristics Engine &bull; Zero Active Probes</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <main class="workspace-grid">
+            
+            <!-- Left Side: Ingestion Panel -->
+            <section class="card input-card">
+                <div class="card-header">
+                    <h2 class="card-title">Artifact Ingestion</h2>
+                    <span class="card-caption">RFC-822, Raw Stream, or URL</span>
+                </div>
+
+                <!-- Mode Switcher Tabs -->
+                <div class="mode-tabs">
+                    <button type="button" class="tab-btn active" id="tabEmail" onclick="switchMode('email')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        Email Inspector
+                    </button>
+                    <button type="button" class="tab-btn" id="tabUrl" onclick="switchMode('url')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        URL Scanner
+                    </button>
+                    <button type="button" class="tab-btn" id="tabUpload" onclick="switchMode('upload')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Upload (.eml)
+                    </button>
+                </div>
+
+                <!-- 1. Email Input Form -->
+                <div id="emailControls">
+                    <div class="scenario-loader">
+                        <label for="sampleSelect" class="form-label">Pre-configured Scenarios (Optional):</label>
+                        <div class="scenario-row">
+                            <select id="sampleSelect" class="form-select">
+                                <option value="">-- Choose a test scenario to inspect --</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary" onclick="loadSelectedSample()">
+                                Load Scenario
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-header-row">
+                            <label for="emailInput" class="form-label">Raw Email Headers & Message Body:</label>
+                            <div class="input-actions">
+                                <span class="input-stats" id="inputStats">0 chars &bull; 0 lines</span>
+                                <button type="button" class="btn-clear" onclick="clearEmailInput()">Clear</button>
+                            </div>
+                        </div>
+                        <textarea id="emailInput" class="code-textarea" rows="13" placeholder="Paste full RFC-822 headers and email body here...&#10;&#10;Example headers to include:&#10;From: &quot;Organization&quot; <service@domain.com>&#10;Return-Path: <bounce@domain.com>&#10;Authentication-Results: spf=pass; dkim=pass&#10;Subject: Account Notification&#10;&#10;Or load a scenario from the dropdown above..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" id="btnAnalyzeEmail" onclick="analyzeEmail()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            Run Threat Inspection
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. URL Input Form -->
+                <div id="urlControls" style="display: none;">
+                    <div class="scenario-loader">
+                        <label class="form-label">Quick Test Targets (Click to inspect):</label>
+                        <div class="chip-container">
+                            <button type="button" class="chip" onclick="setTestUrl('http://paypal.com.verify-billing.xyz/login?session=update-now')">paypal.com.verify-billing.xyz</button>
+                            <button type="button" class="chip" onclick="setTestUrl('http://192.168.1.105:8080/secure/chase/login')">Direct IP (192.168.1.105)</button>
+                            <button type="button" class="chip" onclick="setTestUrl('http://login.micros0ft-support.com/auth/portal-verify')">micros0ft-support.com</button>
+                            <button type="button" class="chip" onclick="setTestUrl('http://bit.ly/3xSecClaim')">bit.ly Shortener</button>
+                            <button type="button" class="chip" onclick="setTestUrl('https://www.amazon.com/gp/your-account/order-history')">amazon.com (Legit)</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="urlInput" class="form-label">Target URL to Evaluate:</label>
+                        <input type="text" id="urlInput" class="form-input" placeholder="e.g. http://paypal.com.verify-billing.xyz/login?session=update" />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" id="btnAnalyzeUrl" onclick="analyzeUrl()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            Scan Target URL
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Upload File Form -->
+                <div id="uploadControls" style="display: none;">
+                    <div class="upload-dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" accept=".eml,.txt,.msg" style="display: none;" onchange="handleFileSelected(event)" />
+                        <div class="dropzone-icon">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
+                        <div class="dropzone-text">
+                            <strong>Choose an .eml or .txt file</strong> or drag & drop here
+                        </div>
+                        <span class="dropzone-caption">Standard RFC-822 email files exported from Outlook, Thunderbird, or Webmail</span>
+                    </div>
+
+                    <div id="uploadStatus" class="upload-status-box" style="display: none;">
+                        <span id="uploadFileName">No file selected</span>
+                        <button type="button" class="btn btn-primary" id="btnExecuteUpload" onclick="uploadAndAnalyze()">
+                            Inspect Uploaded File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Safe Heuristics Info Note -->
+                <div class="safety-advisory-box">
+                    <div class="advisory-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    </div>
+                    <div class="advisory-text">
+                        <strong>Defensive Engine:</strong> Pure static heuristic analysis. No external network connections, server attacks, or active URL fetches are performed.
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Right Side: Intelligence & Telemetry Panel -->
+            <section class="card results-card" id="resultsSection">
+                
+                <div class="results-top-bar">
+                    <div>
+                        <h2 class="card-title">Threat Assessment Report</h2>
+                        <span class="card-caption">Dual-Perspective Security Telemetry</span>
+                    </div>
+                    
+                    <!-- Clean Audience Toggle (General User vs SOC Analyst) -->
+                    <div class="audience-toggle">
+                        <button type="button" class="toggle-btn active" id="btnUserView" onclick="switchAudienceView('user')">
+                            General User View
+                        </button>
+                        <button type="button" class="toggle-btn" id="btnAnalystView" onclick="switchAudienceView('analyst')">
+                            SOC Forensics View
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Initial Empty Standby State (Nothing loaded) -->
+                <div id="emptyStandbyState" class="empty-standby">
+                    <div class="empty-icon-shield">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h3>Ready for Threat Ingestion</h3>
+                    <p>Paste raw RFC-822 email headers, an email body, or enter a target URL on the left. You can also select a scenario from the preset dropdown.</p>
+                    
+                    <div class="standby-steps-grid">
+                        <div class="step-card">
+                            <span class="step-num">01</span>
+                            <h4>Ingest Content</h4>
+                            <p>Paste email text, headers, or submit a URL to evaluate.</p>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-num">02</span>
+                            <h4>Static Heuristics</h4>
+                            <p>Analyzes SPF/DKIM alignment, urgency NLP, and typosquatting.</p>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-num">03</span>
+                            <h4>Dual Triage</h4>
+                            <p>Review clear employee guidance or deep SOC Blue Team forensics.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Report Container (Populated dynamically) -->
+                <div id="reportContainer" style="display: none;">
+                    
+                    <!-- Unified Risk Score Banner -->
+                    <div class="score-banner" id="scoreBanner">
+                        <div class="score-gauge-box">
+                            <span class="score-num" id="scoreValue">0</span>
+                            <span class="score-scale">/ 100</span>
+                        </div>
+                        <div class="score-details">
+                            <div class="risk-badge" id="riskBadge">LOW RISK</div>
+                            <div class="classification-title" id="scoreSummary">Legitimate Communication</div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================
+                         VIEW 1: GENERAL USER VIEW (Clean, Simple, Actionable)
+                         ======================================================== -->
+                    <div id="userViewSection">
+                        
+                        <!-- Plain English Verdict Card -->
+                        <div class="user-verdict-card" id="userVerdictCard">
+                            <div class="verdict-header">
+                                <h3 id="userVerdictHeading">Do Not Trust This Communication</h3>
+                            </div>
+                            <p id="userVerdictDesc" class="verdict-desc">
+                                This message falsely impersonates a legitimate organization to steal your personal credentials.
+                            </p>
+                        </div>
+
+                        <!-- Plain English Red Flags Grid -->
+                        <div class="section-container">
+                            <div class="section-title-row">
+                                <span class="section-title">Key Red Flags Identified</span>
+                            </div>
+                            <div class="red-flags-grid" id="userRedFlagsGrid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Actionable Safety Checklist -->
+                        <div class="section-container">
+                            <div class="section-title-row">
+                                <span class="section-title">Recommended Safety Actions</span>
+                            </div>
+                            <ul class="safety-checklist" id="userActionList">
+                                <li>Do not click any embedded links or open attachments.</li>
+                                <li>Never provide passwords, debit card PINs, or verification codes.</li>
+                                <li>Verify directly by typing the official website address into a browser.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Links Summary for End Users -->
+                        <div class="section-container" id="userLinksBlock" style="display: none;">
+                            <div class="section-title-row">
+                                <span class="section-title">Inspected Links in Message</span>
+                            </div>
+                            <div class="user-links-table-wrapper">
+                                <table class="user-links-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Target Destination</th>
+                                            <th>Safety Status</th>
+                                            <th>Assessment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="userLinksTableBody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ========================================================
+                         VIEW 2: SOC FORENSICS VIEW (Deep Telemetry for Analysts)
+                         ======================================================== -->
+                    <div id="analystViewSection" style="display: none;">
+                        
+                        <!-- Metric Telemetry Cards -->
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <span class="metric-label">Header Risk</span>
+                                <span class="metric-value" id="metricHeader">0/100</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Body Language</span>
+                                <span class="metric-value" id="metricBody">0/100</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">URL Threats</span>
+                                <span class="metric-value" id="metricUrl">0/100</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Total Flags</span>
+                                <span class="metric-value" id="metricFlags">0</span>
+                            </div>
+                        </div>
+
+                        <!-- RFC Header Authentication Matrix -->
+                        <div class="section-container" id="headerMatrixBlock">
+                            <div class="section-title-row">
+                                <span class="section-title">RFC-822 Header Authentication & Alignment</span>
+                            </div>
+                            <div class="header-matrix-table-wrapper">
+                                <table class="matrix-table">
+                                    <tbody>
+                                        <tr>
+                                            <td class="matrix-label">Sender Identity (From)</td>
+                                            <td class="matrix-val" id="rfcFrom">-</td>
+                                            <td class="matrix-label">Return-Path Alignment</td>
+                                            <td class="matrix-val" id="rfcReturnPath">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="matrix-label">Reply-To Direction</td>
+                                            <td class="matrix-val" id="rfcReplyTo">-</td>
+                                            <td class="matrix-label">SPF Check</td>
+                                            <td class="matrix-val" id="rfcSpf"><span class="auth-pill pill-none">NONE</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="matrix-label">DKIM Signature</td>
+                                            <td class="matrix-val" id="rfcDkim"><span class="auth-pill pill-none">NONE</span></td>
+                                            <td class="matrix-label">DMARC Policy</td>
+                                            <td class="matrix-val" id="rfcDmarc"><span class="auth-pill pill-none">NONE</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- MITRE ATT&CK Matrix Correlation -->
+                        <div class="section-container" id="mitreBlock" style="display: none;">
+                            <div class="section-title-row">
+                                <span class="section-title">Correlated MITRE ATT&CK Techniques</span>
+                                <span class="badge-count" id="mitreCounter">0</span>
+                            </div>
+                            <div class="mitre-tags-container" id="mitreTagsList">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Detailed Threat Indicators Table -->
+                        <div class="section-container">
+                            <div class="section-title-row">
+                                <span class="section-title">Detected Threat Indicators</span>
+                                <span class="badge-count" id="findingsCounter">0</span>
+                            </div>
+                            <div class="findings-table-wrapper">
+                                <table class="findings-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Severity</th>
+                                            <th>Category / Rule</th>
+                                            <th>Weight</th>
+                                            <th>Technical Rationale</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="findingsTableBody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Extracted Hyperlinks Inspection Table -->
+                        <div class="section-container" id="extractedUrlsBlock" style="display: none;">
+                            <div class="section-title-row">
+                                <span class="section-title">Extracted Hyperlinks Infrastructure</span>
+                                <span class="badge-count" id="urlsCounter">0</span>
+                            </div>
+                            <div class="urls-table-wrapper">
+                                <table class="urls-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Target URL</th>
+                                            <th>Apex Domain</th>
+                                            <th>Entropy</th>
+                                            <th>Risk</th>
+                                            <th>Anomalies</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="urlsTableBody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Defanged IoCs Box -->
+                        <div class="section-container" id="iocsBlock">
+                            <div class="section-title-row">
+                                <span class="section-title">Indicators of Compromise (Defanged IoCs)</span>
+                                <button type="button" class="btn-copy-ioc" onclick="copyDefangedIocs()">Copy IoCs</button>
+                            </div>
+                            <div class="iocs-container" id="iocsContainer">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Blue Team Playbook -->
+                        <div class="section-container">
+                            <div class="section-title-row">
+                                <span class="section-title">SOC Blue Team Containment Playbook</span>
+                            </div>
+                            <ul class="playbook-list" id="playbookList">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+
+                        <!-- Forensic Action Buttons -->
+                        <div class="analyst-export-row">
+                            <button type="button" class="btn btn-secondary" onclick="exportReportJson()">
+                                Export JSON Report
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="copyReportText()">
+                                Copy Markdown Summary
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- False Positive Educational Disclaimer -->
+                    <div class="disclaimer-banner" id="disclaimerText">
+                        <strong>EDUCATIONAL &amp; OPERATIONAL NOTICE:</strong> This analyzer operates strictly on static heuristic rules, lexical pattern matching, and MITRE ATT&CK correlation. False positives are possible: legitimate automated notifications (e.g. CI/CD alerts or billing receipts) may exhibit urgent wording or atypical domain structures. Always verify suspicious communications through verified out-of-band channels.
+                    </div>
+
+                </div>
+
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-left">
+                <span>PhishGuard Security Suite &bull; Threat Detection &amp; Heuristics Engine</span>
+            </div>
+            <div class="footer-right">
+                <span>Compliant with RFC 5322 &bull; RFC 7208 (SPF) &bull; RFC 6376 (DKIM) &bull; RFC 7489 (DMARC) &bull; MITRE ATT&CK</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

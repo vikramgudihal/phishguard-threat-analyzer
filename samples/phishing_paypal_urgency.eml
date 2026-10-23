@@ -1,0 +1,23 @@
+From: "PayPal Security Support" <support@paypa1-billing.xyz>
+To: target-user@example.com
+Subject: URGENT: Your PayPal Account Has Been Suspended!
+Date: Mon, 19 Oct 2026 14:22:10 +0000
+Return-Path: <bounce@malicious-spammer.top>
+Reply-To: <harvesting-inbox@darkmail.com>
+Authentication-Results: mx.example.com; spf=fail smtp.mailfrom=malicious-spammer.top; dkim=fail
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Dear Customer,
+
+We have detected suspicious sign-in activity on your account from an unrecognized device in Russia. Immediate action required!
+
+Your account will be suspended permanently within 24 hours unless you verify your identity and update your billing details.
+
+Click the link below immediately to restore your access:
+http://paypal.com.verify-billing.xyz/login?session=update-now
+
+Failure to respond will result in complete account closure and forfeiture of funds.
+
+Sincerely,
+PayPal Security & Risk Operations

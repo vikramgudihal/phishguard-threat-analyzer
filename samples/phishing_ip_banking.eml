@@ -1,0 +1,22 @@
+From: "Chase Online Banking" <service-notice@notification-chase.work>
+To: account-holder@example.com
+Subject: Account Lockout Warning - Urgent Attention Required
+Date: Mon, 19 Oct 2026 16:15:33 +0000
+Return-Path: <nobody@vps-992.work>
+Reply-To: <chase-disputes@mail-inbox.cc>
+Authentication-Results: mx.example.com; spf=fail
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Dear Customer,
+
+Your account has been locked due to multiple failed debit card transaction attempts.
+
+Urgent attention is needed. You must confirm your PIN and verify your account identity to lift the restriction immediately.
+
+Access direct banking gateway:
+http://192.168.1.105:8080/secure/chase/login
+
+Do not ignore this warning. Unverified accounts will be subjected to temporary freezing.
+
+Chase Fraud Department

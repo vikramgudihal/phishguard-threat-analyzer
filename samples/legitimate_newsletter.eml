@@ -1,0 +1,27 @@
+From: "CyberSec Digest" <newsletter@cybersecdigest.org>
+To: vikram@example.com
+Subject: CyberSec Weekly #42: Understanding Modern Threat Heuristics
+Date: Mon, 19 Oct 2026 09:00:00 +0000
+Return-Path: <newsletter@cybersecdigest.org>
+Reply-To: <editor@cybersecdigest.org>
+Authentication-Results: mx.google.com; dkim=pass header.i=@cybersecdigest.org; spf=pass smtp.mailfrom=newsletter@cybersecdigest.org
+DKIM-Signature: v=1; a=rsa-sha256; d=cybersecdigest.org; s=mail;
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hello Vikram,
+
+Welcome to this week's edition of the Security Digest.
+
+In today's deep dive, we explore how Security Operations Center (SOC) teams leverage heuristic rules to intercept social engineering before credentials get harvested.
+
+Articles featured in this issue:
+1. Decoding Sender Policy Framework (SPF) and DKIM alignment.
+2. Typosquatting in modern brand spoofing.
+3. Why static heuristics and behavioral education reduce phishing susceptibility by over 70%.
+
+Read the full publication online:
+https://cybersecdigest.org/weekly/issue-42
+
+You received this email because you subscribed to CyberSec Digest.
+Unsubscribe anytime: https://cybersecdigest.org/preferences

@@ -1,0 +1,26 @@
+From: "Microsoft Security Alert" <security-alerts@micros0ft-support.com>
+To: target-employee@example.com
+Subject: [Critical Alert] Unauthorized Login Detected on Your Office365 Account
+Date: Mon, 19 Oct 2026 15:40:02 +0000
+Return-Path: <sender@relay-pool92.org>
+Reply-To: <admin@micros0ft-support.com>
+Authentication-Results: mx.example.com; spf=softfail; dkim=none
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Dear User,
+
+A security compromise has been detected on your Microsoft Office 365 organization account.
+
+Location: Unknown Tor Exit Node (185.220.101.5)
+Browser: Firefox on Linux
+Time: 19 Oct 2026 15:35 UTC
+
+Your organization password will expire within 24 hours. Reset your password now and confirm your password credentials to prevent administrative lockout.
+
+Verify Identity:
+http://login.micros0ft-support.com/auth/portal-verify
+
+If you did not initiate this request, take immediate action to secure your workstation.
+
+Microsoft Security Team

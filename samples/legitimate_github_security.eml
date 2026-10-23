@@ -1,0 +1,25 @@
+From: "GitHub" <noreply@github.com>
+To: vikram@example.com
+Subject: [GitHub] A personal access token was created
+Date: Mon, 19 Oct 2026 11:20:15 +0000
+Return-Path: <noreply@github.com>
+Reply-To: <support@github.com>
+Authentication-Results: mx.google.com; dkim=pass header.i=@github.com; spf=pass smtp.mailfrom=noreply@github.com
+DKIM-Signature: v=1; a=rsa-sha256; d=github.com; s=s2021;
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hey Vikram,
+
+A newly generated personal access token (classic) was added to your account.
+
+Token description: cicd-automation
+Added on: 19 Oct 2026 11:20 UTC
+
+If you created this token, you do not need to do anything.
+
+If you did not generate this token, please revoke it immediately in your developer settings:
+https://github.com/settings/tokens
+
+Thanks,
+The GitHub Security Team
