@@ -47,6 +47,21 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    """Fallback route to ensure CSS and JS load across all cloud environments."""
+    for candidate in [
+        static_dir,
+        os.path.join(BASE_DIR, "public", "static"),
+        os.path.join(os.getcwd(), "public", "static"),
+        os.path.join(os.getcwd(), "static")
+    ]:
+        file_path = os.path.join(candidate, filename)
+        if os.path.exists(file_path):
+            return send_from_directory(candidate, filename)
+    return "Static file not found", 404
+
+
 @app.route("/api/samples", methods=["GET"])
 @app.route("/samples", methods=["GET"])
 def get_samples():
