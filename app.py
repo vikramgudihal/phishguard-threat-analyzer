@@ -17,21 +17,38 @@ from analyzer.url_analyzer import analyze_url
 from analyzer.heuristics import THRESHOLDS, FALSE_POSITIVE_DISCLAIMER
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates_dir = os.path.join(BASE_DIR, "templates")
+if not os.path.exists(templates_dir):
+    templates_dir = os.path.join(os.getcwd(), "templates")
+
+static_dir = os.path.join(BASE_DIR, "static")
+if not os.path.exists(static_dir):
+    static_dir = os.path.join(os.getcwd(), "static")
+
+samples_dir = os.path.join(BASE_DIR, "samples")
+if not os.path.exists(samples_dir):
+    samples_dir = os.path.join(os.getcwd(), "samples")
+
 app = Flask(
     __name__,
-    template_folder=os.path.join(BASE_DIR, "templates"),
-    static_folder=os.path.join(BASE_DIR, "static")
+    template_folder=templates_dir,
+    static_folder=static_dir
 )
-SAMPLES_DIR = os.path.join(BASE_DIR, "samples")
+SAMPLES_DIR = samples_dir
 
 
 @app.route("/")
+@app.route("/api")
+@app.route("/api/")
+@app.route("/api/index")
+@app.route("/api/index.py")
 def index():
     """Renders the main PhishGuard Threat Intelligence interface."""
     return render_template("index.html")
 
 
 @app.route("/api/samples", methods=["GET"])
+@app.route("/samples", methods=["GET"])
 def get_samples():
     """Returns list of available synthetic test scenarios with metadata."""
     sample_files = glob.glob(os.path.join(SAMPLES_DIR, "*.eml"))
@@ -89,6 +106,7 @@ def get_samples():
 
 
 @app.route("/api/sample/<filename>", methods=["GET"])
+@app.route("/sample/<filename>", methods=["GET"])
 def get_sample_content(filename):
     """Loads raw text content of a synthetic sample file safely."""
     safe_name = os.path.basename(filename)
@@ -106,6 +124,7 @@ def get_sample_content(filename):
 
 
 @app.route("/api/analyze-email", methods=["POST"])
+@app.route("/analyze-email", methods=["POST"])
 def api_analyze_email():
     """Receives raw email string and returns threat detection analysis."""
     data = request.get_json(force=True, silent=True) or {}
@@ -122,6 +141,7 @@ def api_analyze_email():
 
 
 @app.route("/api/analyze-url", methods=["POST"])
+@app.route("/analyze-url", methods=["POST"])
 def api_analyze_url():
     """Receives a standalone URL and returns heuristic threat analysis."""
     data = request.get_json(force=True, silent=True) or {}
@@ -139,6 +159,7 @@ def api_analyze_url():
 
 
 @app.route("/api/upload-eml", methods=["POST"])
+@app.route("/upload-eml", methods=["POST"])
 def api_upload_eml():
     """Handles direct .eml or .txt file upload for inspection."""
     if "file" not in request.files:
