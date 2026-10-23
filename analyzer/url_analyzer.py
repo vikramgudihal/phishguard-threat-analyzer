@@ -13,7 +13,12 @@ Multi-layered static lexical and structural analysis:
 
 import re
 from urllib.parse import urlparse, parse_qs
+import os
+import tempfile
 import tldextract
+
+_tld_cache_dir = os.path.join(tempfile.gettempdir(), "tldextract_cache")
+_tld_extractor = tldextract.TLDExtract(cache_dir=_tld_cache_dir)
 
 from analyzer.heuristics import (
     HIGH_VALUE_DOMAINS,
@@ -152,7 +157,7 @@ def analyze_url(url: str) -> dict:
     host = netloc.split(":")[0] if ":" in netloc else netloc
     port = parsed.port
 
-    extracted = tldextract.extract(url_trimmed)
+    extracted = _tld_extractor(url_trimmed)
     subdomain = extracted.subdomain.lower()
     domain = extracted.domain.lower()
     suffix = extracted.suffix.lower()

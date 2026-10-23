@@ -16,8 +16,13 @@ from analyzer.email_analyzer import analyze_email
 from analyzer.url_analyzer import analyze_url
 from analyzer.heuristics import THRESHOLDS, FALSE_POSITIVE_DISCLAIMER
 
-app = Flask(__name__)
-SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "samples")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)
+SAMPLES_DIR = os.path.join(BASE_DIR, "samples")
 
 
 @app.route("/")
