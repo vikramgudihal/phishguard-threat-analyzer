@@ -24,6 +24,19 @@ class VercelWSGIWrapper:
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
+        if "debug=1" in environ.get("QUERY_STRING", ""):
+            import json
+            data = {
+                "PATH_INFO": environ.get("PATH_INFO"),
+                "SCRIPT_NAME": environ.get("SCRIPT_NAME"),
+                "QUERY_STRING": environ.get("QUERY_STRING"),
+                "RAW_URI": environ.get("RAW_URI"),
+                "headers": {k: v for k, v in environ.items() if k.startswith("HTTP_") or k.startswith("x-") or "URI" in k or "PATH" in k}
+            }
+            body = json.dumps(data, indent=2).encode("utf-8")
+            start_response("200 OK", [("Content-Type", "application/json"), ("Content-Length", str(len(body)))])
+            return [body]
+
         target_path = None
 
         # 1. Check for __path__ passed via query string from vercel.json rewrite
