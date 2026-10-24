@@ -10,7 +10,7 @@ Safe Static Evaluation (Zero active network probes or external exploitation)
 
 import os
 import glob
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 
 from analyzer.email_analyzer import analyze_email
 from analyzer.url_analyzer import analyze_url
@@ -62,13 +62,22 @@ def serve_static(filename):
     return "Static file not found", 404
 
 
+# Embedded synthetic corpus fallback for cloud/serverless environments
+CORPUS_FILE = os.path.join(os.path.dirname(__file__), "analyzer", "sample_corpus.json")
+EMBEDDED_SAMPLES = {}
+if os.path.exists(CORPUS_FILE):
+    try:
+        import json
+        with open(CORPUS_FILE, "r", encoding="utf-8") as f:
+            EMBEDDED_SAMPLES = json.load(f)
+    except Exception:
+        pass
+
+
 @app.route("/api/samples", methods=["GET"])
 @app.route("/samples", methods=["GET"])
 def get_samples():
     """Returns list of available synthetic test scenarios with metadata."""
-    sample_files = glob.glob(os.path.join(SAMPLES_DIR, "*.eml"))
-    sample_list = []
-
     descriptions = {
         "phishing_paypal_urgency.eml": {
             "title": "Phishing: PayPal Urgent Suspension (SPF/DKIM Spoof & Deceptive Subdomain)",
@@ -107,9 +116,8 @@ def get_samples():
         }
     }
 
-    for path in sorted(sample_files):
-        fname = os.path.basename(path)
-        meta = descriptions.get(fname, {"title": fname, "type": "unknown", "category": "Scenario"})
+    sample_list = []
+    for fname, meta in descriptions.items():
         sample_list.append({
             "filename": fname,
             "title": meta["title"],
@@ -127,15 +135,18 @@ def get_sample_content(filename):
     safe_name = os.path.basename(filename)
     file_path = os.path.join(SAMPLES_DIR, safe_name)
 
-    if not os.path.exists(file_path):
-        return jsonify({"error": "Scenario file not found"}), 404
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                return jsonify({"filename": safe_name, "content": f.read()})
+        except Exception:
+            pass
 
-    try:
-        with open(file_path, "r", encoding="utf-8", errors="replace") as f:
-            content = f.read()
-        return jsonify({"filename": safe_name, "content": content})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Fallback to embedded corpus
+    if safe_name in EMBEDDED_SAMPLES:
+        return jsonify({"filename": safe_name, "content": EMBEDDED_SAMPLES[safe_name]})
+
+    return jsonify({"error": "Scenario file not found"}), 404
 
 
 @app.route("/api/analyze-email", methods=["POST"])
