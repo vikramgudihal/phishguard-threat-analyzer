@@ -37,6 +37,18 @@ app = Flask(
 SAMPLES_DIR = samples_dir
 
 
+@app.before_request
+def inspect_request():
+    if request.headers.get("User-Agent") == "debug-agent":
+        return jsonify({
+            "path": request.path,
+            "url": request.url,
+            "args": dict(request.args),
+            "headers": dict(request.headers)
+        })
+
+
+
 @app.route("/")
 @app.route("/api")
 @app.route("/api/")
