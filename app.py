@@ -37,23 +37,41 @@ app = Flask(
 SAMPLES_DIR = samples_dir
 
 
-@app.before_request
-def inspect_request():
-    if request.headers.get("User-Agent") == "debug-agent":
-        return jsonify({
-            "path": request.path,
-            "url": request.url,
-            "args": dict(request.args),
-            "headers": dict(request.headers)
-        })
+class VercelPathFixer:
+    """Normalizes PATH_INFO when deployed behind Vercel serverless rewrites."""
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
 
+    def __call__(self, environ, start_response):
+        from urllib.parse import parse_qs, urlencode
+        import re
+
+        query_string = environ.get("QUERY_STRING", "")
+        if "__path__" in query_string:
+            params = parse_qs(query_string, keep_blank_values=True)
+            if "__path__" in params and params["__path__"]:
+                raw_path = params.pop("__path__")[0]
+                clean_path = re.sub(r"^/+", "/", raw_path)
+                if clean_path in ("", "/", "/api/index.py", "/api/index", "/api", "/api/"):
+                    environ["PATH_INFO"] = "/"
+                else:
+                    environ["PATH_INFO"] = clean_path
+                environ["QUERY_STRING"] = urlencode(params, doseq=True)
+
+        # Normalize SCRIPT_NAME to prevent prefix collisions
+        environ["SCRIPT_NAME"] = ""
+
+        # Normalize any direct access to entrypoint paths
+        if environ.get("PATH_INFO") in ("/api/index.py", "/api/index", "/api", "/api/"):
+            environ["PATH_INFO"] = "/"
+
+        return self.wsgi_app(environ, start_response)
+
+
+app.wsgi_app = VercelPathFixer(app.wsgi_app)
 
 
 @app.route("/")
-@app.route("/api")
-@app.route("/api/")
-@app.route("/api/index")
-@app.route("/api/index.py")
 def index():
     """Renders the main PhishGuard Threat Intelligence interface."""
     return render_template("index.html")
